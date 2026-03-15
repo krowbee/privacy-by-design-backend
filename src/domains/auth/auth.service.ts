@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import { SignInDto, SignUpDto } from './auth.dto';
 @Injectable()
 export class AuthService {
-  async loginUser() {}
+  async loginUser(data: SignInDto) {}
 
-  async registerUser() {}
+  async registerUser(data: SignUpDto) {}
 }
