@@ -11,7 +11,9 @@ type encryptedField = {
 };
 @Injectable()
 export class CryptoService {
-  constructor(private key: Buffer) {
+  private key: Buffer;
+
+  constructor() {
     if (!process.env.ENCRYPTION_KEY) {
       throw new InternalServerErrorException();
     }

@@ -10,7 +10,8 @@ export class ProfileService {
       where: { userId },
     });
     if (isExists) throw new ForbiddenException('You already have profile');
-    const profile = this.prisma.client.profile.create({
+
+    const profile = await this.prisma.client.profile.create({
       data: { ...data, userId },
     });
     return profile;
