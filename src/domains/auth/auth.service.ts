@@ -54,7 +54,10 @@ export class AuthService {
       where: { email: data.email },
     });
     if (isExists) throw new ForbiddenException('User already exists');
-    const newUser = await this.prismaService.client.user.create({ data });
+    const hashedPassword = await this.cryptoService.hashValue(data.password);
+    const newUser = await this.prismaService.client.user.create({
+      data: { ...data, password: hashedPassword },
+    });
     const { accessToken } = await this.generateToken({
       id: newUser.id,
       email: newUser.email,
