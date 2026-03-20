@@ -27,6 +27,16 @@ export class AuthService {
     return { accessToken };
   }
 
+  async verifyAccessToken(accessToken: string): Promise<TokenPayload> {
+    const payload: TokenPayload = await this.jwtService.verifyAsync(
+      accessToken,
+      {
+        secret: accessTokenOptions.secret,
+      },
+    );
+    return payload;
+  }
+
   async loginUser(data: SignInDto) {
     const isExists = await this.prismaService.client.user.findUnique({
       where: { email: data.email },
