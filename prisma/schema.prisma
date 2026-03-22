@@ -14,20 +14,55 @@ datasource db {
 }
 
 model User{
-  id String @default(uuid()) @unique
+  id String @id @default(uuid())
   email String @unique
   password String
   profile Profile?
 }
 
 model Profile{
-  id String @default(uuid()) @unique
+  id String @id @default(uuid())
   firstName String
   lastName String
   address String
   passportNumber String
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @unique
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+}
+
+enum EventActions {
+  CREATE
+  UPDATE
+  READ
+  DELETE
+
+  LOGIN
+  REGISTER
+  LOGOUT
+}
+
+enum EventStatus {
+  SUCCESS
+  FAILURE
+}
+
+enum ActorType {
+  ADMIN
+  USER
+  SYSTEM
+}
+
+model AuditEvent{
+  id String @id @default(uuid())
+  actorId String?
+  actorType ActorType?
+  ip String?
+  metadata Json?
+  action EventActions
+  entity String?
+  entityId String?
+  status EventStatus
+  created_at DateTime @default(now())
 }
