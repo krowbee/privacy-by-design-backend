@@ -5,6 +5,6 @@ export type AuditPayload = {
   action: EventActions;
   entity?: string;
   entityId?: string;
-
+  userId?: string;
   status: EventStatus;
 };
