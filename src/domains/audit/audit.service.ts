@@ -7,6 +7,10 @@ export class AuditService {
   constructor(private prisma: PrismaService) {}
 
   async log(payload: AuditPayload) {
-    const log = this.prisma.client.auditEvent.create({ data: payload });
+    try {
+      await this.prisma.client.auditEvent.create({ data: payload });
+    } catch {
+      console.log('Log error');
+    }
   }
 }

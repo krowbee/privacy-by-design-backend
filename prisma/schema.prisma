@@ -56,8 +56,8 @@ enum ActorType {
 
 model AuditEvent{
   id String @id @default(uuid())
-  actorId String?
-  actorType ActorType?
+  userId String?
+  userType ActorType?
   ip String?
   metadata Json?
   action EventActions

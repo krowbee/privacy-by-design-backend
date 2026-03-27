@@ -6,7 +6,8 @@ import {
 } from 'generated/prisma/client';
 
 export type AuditPayload = {
-  metadata?: Prisma.JsonValue;
+  metadata?: Prisma.InputJsonValue | Prisma.NullableJsonNullValueInput;
+  ip?: string;
   action: EventActions;
   entity?: string;
   entityId?: string;
