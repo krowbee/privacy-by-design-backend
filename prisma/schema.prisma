@@ -55,7 +55,14 @@ enum ActorType {
   SYSTEM
 }
 
+enum EventCategories {
+  SECURITY
+  CRUD
+  ERROR
+}
+
 model AuditEvent{
+  category EventCategories
   id String @id @default(uuid())
   actorId String?
   actorType ActorType?

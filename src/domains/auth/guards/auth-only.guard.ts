@@ -8,6 +8,7 @@ import { Request } from 'express';
 import { AuthService } from '../auth.service';
 import { AuditService } from '../../audit/audit.service';
 import { ClsService } from 'nestjs-cls';
+import { EventCategories, EventStatus } from 'generated/prisma/enums';
 
 @Injectable()
 export class AuthOnlyGuard implements CanActivate {
@@ -34,7 +35,10 @@ export class AuthOnlyGuard implements CanActivate {
       req['user'] = payload;
       return true;
     } catch (err) {
-      await this.auditService.log({ status: 'FAILURE' });
+      await this.auditService.log({
+        status: EventStatus.FAILURE,
+        category: EventCategories.SECURITY,
+      });
       throw err;
     }
   }

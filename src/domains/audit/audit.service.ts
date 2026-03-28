@@ -64,6 +64,7 @@ export class AuditService {
       status: data.status,
       entity: data.entity,
       entityId: data.entityId,
+      category: data.category,
     };
 
     return createData;
