@@ -1,26 +1,19 @@
-import { PickType } from '@nestjs/swagger';
 import { EventCategories, Prisma } from 'generated/prisma/browser';
 import { ActorType, EventActions, EventStatus } from 'generated/prisma/client';
 
-export class CreateAuditData {
+export type Metadata = Prisma.InputJsonObject;
+
+export interface AuditPayload {
   category: EventCategories;
-  metadata?: Metadata;
-  ip?: string;
+  status: EventStatus;
   action?: EventActions;
   entity?: string;
   entitySelector?: Prisma.InputJsonValue;
-  actorId?: string;
-  actorType?: ActorType;
-  status: EventStatus;
+  metadata?: Metadata;
 }
 
-export type Metadata = Prisma.InputJsonObject;
-
-export class AuditPayload extends PickType(CreateAuditData, [
-  'category',
-  'action',
-  'entity',
-  'entitySelector',
-  'status',
-  'metadata',
-]) {}
+export interface CreateAuditData extends AuditPayload {
+  ip?: string;
+  actorId?: string;
+  actorType?: ActorType;
+}
