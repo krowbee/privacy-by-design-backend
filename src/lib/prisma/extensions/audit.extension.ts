@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { PrismaClient } from 'generated/prisma/client';
 import { ClsService } from 'nestjs-cls';
 import {
@@ -52,7 +50,8 @@ export function auditExtension(cls: ClsService, baseClient: PrismaClient) {
                 status: EventStatus.SUCCESS,
                 action,
                 entity: model,
-                entitySelector: (args as any)?.where ?? Prisma.JsonNull,
+                entitySelector:
+                  (args as Record<string, unknown>).where ?? Prisma.JsonNull,
                 ip: cls.get<string>('ip') ?? null,
                 actorId: cls.get<string>('actorId') ?? null,
                 actorType: cls.get('actorType') ?? null,
