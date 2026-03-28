@@ -52,6 +52,7 @@ export class AuthService {
     const { accessToken } = await this.generateToken({
       id: isExists.id,
       email: isExists.email,
+      role: isExists.role,
     });
 
     const user = toDto(PublicUserDto, isExists);
@@ -71,6 +72,7 @@ export class AuthService {
     const { accessToken } = await this.generateToken({
       id: newUser.id,
       email: newUser.email,
+      role: newUser.role,
     });
     const user = toDto(PublicUserDto, newUser);
     return { user, accessToken };

@@ -3,9 +3,10 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
 import { CryptoModule } from 'src/lib/crypto/crypto.module';
 import { AuthController } from './auth.controller';
+import { AuditModule } from '../audit/audit.module';
 
 @Module({
-  imports: [JwtModule.register({}), CryptoModule],
+  imports: [JwtModule.register({}), CryptoModule, AuditModule],
   providers: [AuthService],
   controllers: [AuthController],
   exports: [AuthService],

@@ -17,6 +17,7 @@ model User{
   id String @id @default(uuid())
   email String @unique
   password String
+  role ActorType @default(USER)
   profile Profile?
 }
 
@@ -56,11 +57,11 @@ enum ActorType {
 
 model AuditEvent{
   id String @id @default(uuid())
-  userId String?
-  userType ActorType?
+  actorId String?
+  actorType ActorType?
   ip String?
   metadata Json?
-  action EventActions
+  action EventActions?
   entity String?
   entityId String?
   status EventStatus
