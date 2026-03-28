@@ -70,7 +70,7 @@ model AuditEvent{
   metadata Json?
   action EventActions?
   entity String?
-  entityId String?
+  entitySelector Json?
   status EventStatus
   created_at DateTime @default(now())
 }

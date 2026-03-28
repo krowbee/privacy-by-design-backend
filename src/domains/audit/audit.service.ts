@@ -63,7 +63,7 @@ export class AuditService {
       action: action,
       status: data.status,
       entity: data.entity,
-      entityId: data.entityId,
+      entitySelector: data.entitySelector,
       category: data.category,
     };
 

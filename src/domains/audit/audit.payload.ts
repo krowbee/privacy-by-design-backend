@@ -8,7 +8,7 @@ export class CreateAuditData {
   ip?: string;
   action?: EventActions;
   entity?: string;
-  entityId?: string;
+  entitySelector?: Prisma.InputJsonValue;
   actorId?: string;
   actorType?: ActorType;
   status: EventStatus;
@@ -20,7 +20,7 @@ export class AuditPayload extends PickType(CreateAuditData, [
   'category',
   'action',
   'entity',
-  'entityId',
+  'entitySelector',
   'status',
   'metadata',
 ]) {}
