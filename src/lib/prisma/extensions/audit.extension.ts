@@ -77,7 +77,12 @@ export function auditExtension(cls: ClsService, baseClient: PrismaClient) {
         async $allOperations({ model, operation, args, query }) {
           const action = OPERATION_TO_ACTION[operation];
           if (!action) return query(args);
-
+          if (
+            model === 'User' &&
+            action !== EventActions.UPDATE &&
+            action !== EventActions.DELETE
+          )
+            return query(args);
           try {
             const result = await query(args);
 
