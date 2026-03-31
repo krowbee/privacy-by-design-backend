@@ -33,7 +33,7 @@ export class AuditService {
     }
   }
 
-  private buildPayload(data: AuditPayload): CreateAuditData {
+  buildPayload(data: AuditPayload): CreateAuditData {
     return {
       ...data,
       ip: this.cls.get<string>('ip'),
