@@ -7,12 +7,28 @@ import { ProfileModule } from './domains/profile/profile.module';
 import { ClsModule } from 'nestjs-cls';
 import { randomUUID } from 'crypto';
 import { Request } from 'express';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
     AuthModule,
     PrismaModule,
     ProfileModule,
+    ThrottlerModule.forRoot({
+      errorMessage: 'Too many requests',
+      throttlers: [
+        {
+          name: 'login_short',
+          ttl: 60000,
+          limit: 3,
+        },
+        {
+          name: 'login_long',
+          ttl: 15 * 60000,
+          limit: 5,
+        },
+      ],
+    }),
     ClsModule.forRoot({
       global: true,
       middleware: {

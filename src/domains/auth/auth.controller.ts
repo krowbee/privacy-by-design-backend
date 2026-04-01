@@ -1,9 +1,17 @@
-import { Body, Controller, HttpCode, Post, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  Post,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInDto, SignUpDto } from './types/auth.dto';
 import type { Request, Response } from 'express';
 import { accessCookieOptions } from './constants/cookie.constants';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 @ApiTags('Authorization')
 @Controller('auth')
@@ -25,11 +33,13 @@ export class AuthController {
     res.cookie('accessToken', accessToken, accessCookieOptions);
     return { user };
   }
+
   @ApiOperation({
     summary: 'Login',
     description: 'Login user',
   })
   @ApiBody({ type: SignUpDto })
+  @UseGuards(ThrottlerGuard)
   @HttpCode(200)
   @Post('/login')
   async login(
