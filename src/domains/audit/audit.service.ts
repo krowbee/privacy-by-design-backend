@@ -59,4 +59,20 @@ export class AuditService {
       requestId: this.cls.getId(),
     };
   }
+
+  async getUserAuditEvents(userId: string) {
+    const account = await this.prisma.client.auditEvent.findMany({
+      where: {
+        entitySelector: { path: ['userId'], equals: userId },
+        entity: { not: 'Profile' },
+      },
+    });
+    const profile = await this.prisma.client.auditEvent.findMany({
+      where: {
+        entity: 'Profile',
+        entitySelector: { path: ['userId'], equals: userId },
+      },
+    });
+    return { account, profile };
+  }
 }

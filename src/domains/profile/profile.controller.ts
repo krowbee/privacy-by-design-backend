@@ -13,11 +13,15 @@ import { AuthOnlyGuard } from '../auth/guards/auth-only.guard';
 import { User } from '../auth/decorators/user.decorator';
 import type { TokenPayload } from '../auth/types/payload';
 import { ProfileService } from './profile.service';
+import { AuditService } from '../audit/audit.service';
 
 @ApiTags('Profile')
 @Controller('/profile')
 export class ProfileController {
-  constructor(private profileService: ProfileService) {}
+  constructor(
+    private profileService: ProfileService,
+    private auditService: AuditService,
+  ) {}
 
   @Get('')
   @UseGuards(AuthOnlyGuard)
@@ -26,6 +30,15 @@ export class ProfileController {
     return profile;
   }
 
+  @Get('privacy/export')
+  @UseGuards(AuthOnlyGuard)
+  async exportPersonalData(@User() user: TokenPayload) {
+    const profileData = await this.profileService.getProfile(user.id);
+    const { account, profile } = await this.auditService.getUserAuditEvents(
+      user.id,
+    );
+    return { profile: profileData, logs: { account, profile } };
+  }
   @Post('')
   @UseGuards(AuthOnlyGuard)
   async createProfile(
