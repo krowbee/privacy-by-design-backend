@@ -74,3 +74,26 @@ model AuditEvent{
   status EventStatus
   created_at DateTime @default(now())
 }
+
+enum DocumentTypes {
+  TERMS
+  PRIVACY
+}
+
+
+model ConsentDocument {
+  id String @id @default(uuid())
+  type DocumentTypes
+  version Float
+  content String
+  isActive Boolean
+  userConsents UserConsent[]
+}
+
+model UserConsent{
+  id String @id @default(uuid())
+  consent ConsentDocument @relation(fields: [consentId], references: [id], onDelete: Cascade)
+  consentId String
+  revoked_at DateTime
+  created_at DateTime @default(now())
+}
