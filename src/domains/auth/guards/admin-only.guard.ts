@@ -2,12 +2,14 @@ import {
   CanActivate,
   ExecutionContext,
   ForbiddenException,
+  Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { Request } from 'express';
 import { ActorType } from 'generated/prisma/enums';
 
+@Injectable()
 export class AdminOnlyGuard implements CanActivate {
   constructor(private authService: AuthService) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
