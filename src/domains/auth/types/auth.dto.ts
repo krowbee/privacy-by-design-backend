@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsEmail, IsString, MinLength } from 'class-validator';
+import { IsBoolean, IsEmail, IsString, MinLength } from 'class-validator';
 
 export class SignUpDto {
   @ApiProperty({ example: 'test123@gmail.com', type: String })
@@ -11,6 +11,10 @@ export class SignUpDto {
   @MinLength(8)
   @IsString()
   password: string;
+
+  @ApiProperty({ type: Boolean })
+  @IsBoolean()
+  hasAcceptedPolicy: boolean;
 }
 
 export class SignInDto {

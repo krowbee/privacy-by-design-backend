@@ -17,6 +17,7 @@ import {
   EventCategories,
   EventStatus,
 } from 'generated/prisma/enums';
+import { ConsentService } from '../consent/consent.service';
 
 @Injectable()
 export class AuthService {
@@ -26,6 +27,7 @@ export class AuthService {
     private cryptoService: CryptoService,
     private jwtService: JwtService,
     private auditService: AuditService,
+    private consentService: ConsentService,
   ) {}
 
   private buildSecurityPayload(
@@ -116,11 +118,18 @@ export class AuthService {
       where: { email: data.email },
     });
     try {
+      if (!data.hasAcceptedPolicy)
+        throw new ForbiddenException(
+          'Privacy policy must be accepted to continue',
+        );
       if (isExists) throw new ForbiddenException('User already exists');
       const hashedPassword = await this.cryptoService.hashValue(data.password);
       const newUser = await this.prismaService.client.user.create({
         data: { ...data, password: hashedPassword },
       });
+      const acceptedPolicy = await this.consentService.createUserConsent(
+        newUser.id,
+      );
       const { accessToken } = await this.generateToken({
         id: newUser.id,
         email: newUser.email,
@@ -136,7 +145,7 @@ export class AuthService {
           ),
         )
         .catch((err) => this.logger.error('Audit log failed', err));
-      return { user, accessToken };
+      return { user, accessToken, consent: acceptedPolicy };
     } catch (err) {
       this.auditService
         .log(
