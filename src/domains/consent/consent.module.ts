@@ -5,5 +5,6 @@ import { ConsentController } from './consent.contoller';
 @Module({
   providers: [ConsentService],
   controllers: [ConsentController],
+  exports: [ConsentService],
 })
 export class ConsentModule {}
