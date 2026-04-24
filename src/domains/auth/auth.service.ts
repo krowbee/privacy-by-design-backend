@@ -124,12 +124,19 @@ export class AuthService {
         );
       if (isExists) throw new ForbiddenException('User already exists');
       const hashedPassword = await this.cryptoService.hashValue(data.password);
-      const newUser = await this.prismaService.client.user.create({
-        data: { email: data.email, password: hashedPassword },
-      });
-      const acceptedPolicy = await this.consentService.createUserConsent(
-        newUser.id,
+
+      const newUser = await this.prismaService.client.$transaction(
+        async (tx) => {
+          const user = await tx.user.create({
+            data: { email: data.email, password: hashedPassword },
+          });
+
+          await this.consentService.createUserConsent(user.id, tx);
+
+          return user;
+        },
       );
+
       const { accessToken } = await this.generateToken({
         id: newUser.id,
         email: newUser.email,
@@ -145,7 +152,7 @@ export class AuthService {
           ),
         )
         .catch((err) => this.logger.error('Audit log failed', err));
-      return { user, accessToken, consent: acceptedPolicy };
+      return { user, accessToken };
     } catch (err) {
       this.auditService
         .log(

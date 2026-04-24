@@ -1,13 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/lib/prisma/prisma.service';
 
+type ConsentPrismaClient = Pick<
+  PrismaService['client'],
+  'userConsent' | 'consentDocument'
+>;
 @Injectable()
 export class ConsentService {
-  constructor(private prismaClient: PrismaService) {}
+  constructor(private prismaService: PrismaService) {}
 
   async getActualConsent() {
     const consent =
-      await this.prismaClient.baseClient.consentDocument.findFirst({
+      await this.prismaService.baseClient.consentDocument.findFirst({
         where: { isActive: true },
         orderBy: [{ id: 'desc' }, { createdAt: 'desc' }],
       });
@@ -15,10 +19,13 @@ export class ConsentService {
     return consent;
   }
 
-  async createUserConsent(userId: string) {
+  async createUserConsent(
+    userId: string,
+    prisma: ConsentPrismaClient = this.prismaService.client,
+  ) {
     const actualConsent = await this.getActualConsent();
     if (!actualConsent) throw new NotFoundException('Consents not found');
-    const userConsent = this.prismaClient.client.userConsent.create({
+    const userConsent = await prisma.userConsent.create({
       data: { userId, documentId: actualConsent?.id },
     });
     return userConsent;
