@@ -8,12 +8,14 @@ import { ClsModule } from 'nestjs-cls';
 import { randomUUID } from 'crypto';
 import { Request } from 'express';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { ConsentModule } from './domains/consent/consent.module';
 
 @Module({
   imports: [
     AuthModule,
     PrismaModule,
     ProfileModule,
+    ConsentModule,
     ThrottlerModule.forRoot({
       errorMessage: 'Too many requests',
       throttlers: [

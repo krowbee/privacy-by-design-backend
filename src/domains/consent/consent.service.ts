@@ -9,8 +9,9 @@ export class ConsentService {
     const consent =
       await this.prismaClient.baseClient.consentDocument.findFirst({
         where: { isActive: true },
-        orderBy: { id: 'desc', createdAt: 'desc' },
+        orderBy: [{ id: 'desc' }, { createdAt: 'desc' }],
       });
+    if (!consent) throw new NotFoundException('Consents not found');
     return consent;
   }
 
