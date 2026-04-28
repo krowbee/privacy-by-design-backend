@@ -1,6 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { createCipheriv, createDecipheriv, randomBytes } from 'crypto';
+import * as crypto from 'crypto';
 
 const saltOrRounds = 12;
 
@@ -24,6 +25,17 @@ export class CryptoService {
   }
   async compareValue(value: string, hashedValue: string): Promise<boolean> {
     return bcrypt.compare(value, hashedValue);
+  }
+
+  hashIp(ip: string) {
+    try {
+      return crypto
+        .createHmac('sha256', process.env.IP_SALT!)
+        .update(ip)
+        .digest('hex');
+    } catch {
+      throw new InternalServerErrorException('IP salt undefined');
+    }
   }
 
   encryptField(field: string): string {

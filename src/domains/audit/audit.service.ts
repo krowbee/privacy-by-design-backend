@@ -3,6 +3,7 @@ import { AuditPayload, CreateAuditData, Metadata } from './audit.payload';
 import { PrismaService } from 'src/lib/prisma/prisma.service';
 import { ClsService } from 'nestjs-cls';
 import { EventActions } from 'generated/prisma/enums';
+import { CryptoService } from 'src/lib/crypto/crypto.service';
 
 const METHOD_TO_ACTION: Record<string, EventActions> = {
   GET: EventActions.READ,
@@ -18,6 +19,7 @@ export class AuditService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cls: ClsService,
+    private readonly cryptoService: CryptoService,
   ) {}
 
   async log(data: AuditPayload): Promise<void> {
@@ -36,7 +38,7 @@ export class AuditService {
   buildPayload(data: AuditPayload): CreateAuditData {
     return {
       ...data,
-      ip: this.cls.get<string>('ip'),
+      ip: this.cryptoService.hashIp(this.cls.get<string>('ip')),
       actorId: this.cls.get<string>('actorId'),
       actorType: this.cls.get('actorType'),
       action: this.resolveAction(data.action),

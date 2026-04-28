@@ -8,6 +8,7 @@ import {
 } from 'generated/prisma/enums';
 import { Prisma } from 'generated/prisma/client';
 import { CreateAuditData } from 'src/domains/audit/audit.payload';
+import { CryptoService } from 'src/lib/crypto/crypto.service';
 
 const SKIP_MODELS = new Set(['AuditEvent']);
 
@@ -34,6 +35,7 @@ const extractChangedFields = (args: unknown, operation: string): string[] => {
 
 function buildAuditPayload(
   cls: ClsService,
+  cryptoService: CryptoService,
   model: string,
   action: EventActions,
   operation: string,
@@ -41,6 +43,7 @@ function buildAuditPayload(
   status: EventStatus,
   error?: unknown,
 ): CreateAuditData {
+  const ip = cls.get<string>('ip');
   return {
     category: EventCategories.CRUD,
     status,
@@ -50,7 +53,7 @@ function buildAuditPayload(
       args && typeof args === 'object' && 'where' in args
         ? ((args as Record<string, unknown>).where ?? Prisma.JsonNull)
         : Prisma.JsonNull,
-    ip: cls.get<string>('ip') ?? null,
+    ip: ip ? cryptoService.hashIp(ip) : undefined,
     actorId: cls.get<string>('actorId') ?? null,
     actorType: cls.get<ActorType>('actorType') ?? null,
     metadata: {
@@ -69,7 +72,11 @@ function buildAuditPayload(
   };
 }
 
-export function auditExtension(cls: ClsService, baseClient: PrismaClient) {
+export function auditExtension(
+  cls: ClsService,
+  baseClient: PrismaClient,
+  cryptoService: CryptoService,
+) {
   return Prisma.defineExtension({
     name: 'audit-log',
     query: {
@@ -91,6 +98,7 @@ export function auditExtension(cls: ClsService, baseClient: PrismaClient) {
               .create({
                 data: buildAuditPayload(
                   cls,
+                  cryptoService,
                   model,
                   action,
                   operation,
@@ -107,6 +115,7 @@ export function auditExtension(cls: ClsService, baseClient: PrismaClient) {
               .create({
                 data: buildAuditPayload(
                   cls,
+                  cryptoService,
                   model,
                   action,
                   operation,

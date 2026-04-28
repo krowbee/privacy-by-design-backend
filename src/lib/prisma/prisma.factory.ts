@@ -19,7 +19,7 @@ export function createPrismaClient(
   const baseClient = createBaseClient();
   const client = createBaseClient()
     .$extends(encryptionExtension(cryptoService))
-    .$extends(auditExtension(cls, baseClient));
+    .$extends(auditExtension(cls, baseClient, cryptoService));
   return { client, baseClient };
 }
 
