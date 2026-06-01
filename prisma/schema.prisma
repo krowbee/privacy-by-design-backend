@@ -1,11 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client-js"
-  output = "../generated/prisma"
+  provider     = "prisma-client-js"
+  output       = "../generated/prisma"
   moduleFormat = "cjs"
 }
 
@@ -13,25 +8,91 @@ datasource db {
   provider = "postgresql"
 }
 
-model User{
-  id String @id @default(uuid())
-  email String @unique
+model User {
+  id       String    @id @default(uuid())
+  email    String    @unique
   password String
-  role ActorType @default(USER)
+  role     ActorType @default(USER)
+
+  processingStatus ProcessingStatus @default(ACTIVE)
+
   profile Profile?
   consent UserConsent?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-model Profile{
+model Profile {
   id String @id @default(uuid())
-  firstName String
-  lastName String
-  address String
-  passportNumber String
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  firstName      String?
+  lastName       String?
+  address        String?
+  passportNumber String?
+
+  isAnonymized Boolean   @default(false)
+  anonymizedAt DateTime?
+
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @unique
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ConsentDocument {
+  id        String   @id @default(uuid())
+  title     String
+  version   String
+  content   String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  userConsents UserConsent[]
+}
+
+model UserConsent {
+  id     String @id @default(uuid())
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @unique
+
+  document   ConsentDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  documentId String
+
+  acceptedAt DateTime  @default(now())
+  revokedAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AuditEvent {
+  id String @id @default(uuid())
+
+  category EventCategories
+  action   EventActions?
+  status   EventStatus
+
+  actorId   String?
+  actorType ActorType?
+
+  ip             String?
+  entity         String?
+  entitySelector Json?
+  metadata       Json?
+
+  createdAt DateTime @default(now())
+}
+
+enum ProcessingStatus {
+  ACTIVE
+  CONSENT_REVOKED
+  ANONYMIZED
+  DELETED
 }
 
 enum EventActions {
@@ -43,6 +104,13 @@ enum EventActions {
   LOGIN
   REGISTER
   LOGOUT
+
+  CONSENT_ACCEPT
+  CONSENT_REVOKE
+
+  DATA_EXPORT
+  DATA_ANONYMIZE
+  DATA_DELETE
 }
 
 enum EventStatus {
@@ -59,42 +127,6 @@ enum ActorType {
 enum EventCategories {
   SECURITY
   CRUD
+  GDPR
   ERROR
-}
-
-model AuditEvent{
-  category EventCategories
-  id String @id @default(uuid())
-  actorId String?
-  actorType ActorType?
-  ip String?
-  metadata Json?
-  action EventActions?
-  entity String?
-  entitySelector Json?
-  status EventStatus
-  created_at DateTime @default(now())
-}
-
-model ConsentDocument {
-  id        String   @id @default(uuid())
-  title     String
-  version   String
-  content   String
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-
-  userConsents UserConsent[]
-}
-
-model UserConsent {
-  id          String          @id @default(uuid())
-  user        User    @relation(fields: [userId], references: [id])
-  userId      String @unique
-
-  document    ConsentDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  documentId  String
-
-  acceptedAt  DateTime        @default(now())
-  revokedAt   DateTime?
 }

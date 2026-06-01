@@ -4,6 +4,7 @@ import { PrismaService } from 'src/lib/prisma/prisma.service';
 import { ClsService } from 'nestjs-cls';
 import { EventActions } from 'generated/prisma/enums';
 import { CryptoService } from 'src/lib/crypto/crypto.service';
+import { EventCategories, EventStatus } from 'generated/prisma/enums';
 
 const METHOD_TO_ACTION: Record<string, EventActions> = {
   GET: EventActions.READ,
@@ -21,6 +22,17 @@ export class AuditService {
     private readonly cls: ClsService,
     private readonly cryptoService: CryptoService,
   ) {}
+
+  async getAuditByFilters(status?: EventStatus, category?: EventCategories) {
+    const audit = this.prisma.client.auditEvent.findMany({
+      where: {
+        ...(status && { status }),
+        ...(category && { category }),
+      },
+      orderBy: { created_at: 'desc' },
+    });
+    return audit;
+  }
 
   async log(data: AuditPayload): Promise<void> {
     try {

@@ -1,6 +1,7 @@
 import { PrismaClient } from '../generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import 'dotenv/config';
+import * as bcrypt from 'bcrypt';
 function createBaseClient() {
   const adapter = new PrismaPg({
     connectionString: process.env.DATABASE_URL,
@@ -38,6 +39,11 @@ By continuing, I confirm that I have read and accepted this Privacy Policy Conse
   });
 
   console.log('Consent document seeded successfully');
+  const password = await bcrypt.hash('12345678', 12);
+  const user = await prisma.user.create({
+    data: { email: 'admin@admin.com', password, role: 'ADMIN' },
+  });
+  console.log('Admin created successfully', user.email);
 }
 
 main()
